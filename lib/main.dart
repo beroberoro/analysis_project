@@ -1,4 +1,7 @@
 //main.dart
+import 'package:analysis_project/settings_page.dart';
+
+import 'profile_page.dart';
 import 'package:flutter/material.dart';
 import 'medical_test_page.dart';
 import 'xray_page.dart';
@@ -17,28 +20,65 @@ class MyApp extends StatelessWidget {
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: const Color(0xFFE3F2FD),
-            centerTitle: true,
-            title: const Text(
-              "",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Color(0xFF0D47A1),
+            appBar: AppBar(
+              elevation: 0,
+              backgroundColor: const Color(0xFFE3F2FD),
+              automaticallyImplyLeading: false,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // زر الإعدادات على اليسار
+                  Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.settings, color: Color(0xFF0D47A1)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsPage()),
+                      );
+                      },
+                  ),
+                  ),
+                  // العنوان في النص
+                  const Text(
+                    "Home",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                      color: Color(0xFF0D47A1),
+                    ),
+                  ),
+
+                  // صورة البروفايل على اليمين
+                  Builder(
+                    builder: (context) => GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ProfilePage()),
+                        );
+                      },
+                      child: const CircleAvatar(
+                        radius: 25,
+                        backgroundImage: AssetImage('assets/download.png'),
+                        backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                  ),
+
+
+                ],
+              ),
+              bottom: const TabBar(
+                indicatorColor: Color(0xFF0D47A1),
+                labelColor: Color(0xFF0D47A1),
+                unselectedLabelColor: Colors.grey,
+                tabs: [
+                  Tab(text: "Medical Reports"),
+                  Tab(text: "X-Rays"),
+                ],
               ),
             ),
-            bottom: const TabBar(
-              indicatorColor: Color(0xFF0D47A1),
-              labelColor: Color(0xFF0D47A1),
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                Tab(text: "Medical Reports"),
-                Tab(text: "X-Rays"),
-              ],
-            ),
-          ),
           body: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
