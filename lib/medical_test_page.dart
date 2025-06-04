@@ -24,7 +24,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
     switch (widget.title) {
       case "Diabetes":
         fields = [
-          "gender", "age", "hypertension", "heart disease", "smoking history",
+          "gender", ("age"), "hypertension", "heart disease", "smoking history",
           "bmi", "HbA1c level", "blood glucose level"
         ];
         break;
@@ -102,10 +102,21 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFF1F8E9),
+              Color(0xFFE8F5E9),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
             Expanded(
               child: ListView.builder(
                 itemCount: fields.length,
@@ -149,9 +160,9 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
             ElevatedButton.icon(
               onPressed: _sendDataToBackend,
               icon: const Icon(Icons.send),
-              label: const Text("إرسال البيانات"),
+              label: const Text("Send"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Colors.deepPurple.shade400,
                 foregroundColor: Colors.white,
                 padding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -160,6 +171,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
           ],
         ),
       ),
+    ),
     );
   }
 }
