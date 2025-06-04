@@ -32,7 +32,7 @@ class _XRayPageState extends State<XRayPage> {
 
   Future<void> _sendXray() async {
     if (_selectedImage == null) return;
-    String diagnosis = await api.predictXray(_selectedImage!.path);
+    String diagnosis = await api.predictXray(_selectedImage!.path, widget.title);
     setState(() {
       _diagnosis = diagnosis;
     });

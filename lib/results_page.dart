@@ -1,5 +1,9 @@
 // results_page.dart
+import 'package:analysis_project/tips_page.dart';
 import 'package:flutter/material.dart';
+
+import 'generate_pdf_page.dart';
+import 'medical_advice_page.dart';
 
 class ResultsPage extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -34,8 +38,9 @@ class ResultsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Text(
-              "نتائج التحليل:",
+              "Analysis results:",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -73,9 +78,48 @@ class ResultsPage extends StatelessWidget {
                 },
               ),
             ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (MedicalAdvicePage.getTips(diagnosis).length > 1)
+                  ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200]),
+                  icon: const Icon(Icons.tips_and_updates),
+                  label: const Text("Medical advice"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TipsPage(diagnosis: diagnosis),
+                      ),
+                    );
+                  },
+
+
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[200]),
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text("Generat PDF"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GeneratePdfPage(
+                          diagnosis: diagnosis,
+                          values: values,
+                          testType: testType,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Text(
-              "التشخيص:",
+              "Diagnosis:",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

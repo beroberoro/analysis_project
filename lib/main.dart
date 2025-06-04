@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
                   ),
                   // العنوان في النص
                   const Text(
-                    "Home",
+                    "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25,

@@ -1,6 +1,7 @@
 // medical_test_page.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ← أضف هذه
 import 'api.dart';
 import 'results_page.dart';
 
@@ -24,7 +25,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
     switch (widget.title) {
       case "Diabetes":
         fields = [
-          "gender", ("age"), "hypertension", "heart disease", "smoking history",
+          "gender", "age", "hypertension", "heart disease", "smoking history",
           "bmi", "HbA1c level", "blood glucose level"
         ];
         break;
@@ -117,61 +118,63 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: fields.length,
-                itemBuilder: (context, index) {
-                  final field = fields[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            field,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 3,
-                          child: TextField(
-                            controller: controllers[field],
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              hintText: "Enter value",
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: fields.length,
+                  itemBuilder: (context, index) {
+                    final field = fields[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              field,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              controller: controllers[field],
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                              ],
+                              decoration: InputDecoration(
+                                hintText: "Enter value",
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            ElevatedButton.icon(
-              onPressed: _sendDataToBackend,
-              icon: const Icon(Icons.send),
-              label: const Text("Send"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple.shade400,
-                foregroundColor: Colors.white,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ElevatedButton.icon(
+                onPressed: _sendDataToBackend,
+                icon: const Icon(Icons.send),
+                label: const Text("Send"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple.shade400,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

@@ -50,7 +50,7 @@ class ProfilePage extends StatelessWidget {
 
     body: const Center(
         child: Text(
-          "معلومات المريض هنا",
+          "Patient information here",
           style: TextStyle(fontSize: 18),
         ),
       ),
