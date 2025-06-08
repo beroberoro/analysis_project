@@ -15,8 +15,8 @@ class Api {
   };
 
   final Map<String, String> xrayEndpoints = {
-    "Pneumonia": "https://your-api.com/xray/pneumonia",
-    "Covid-19": "https://covid-19-tc9m.onrender.com/predict",
+    "Pneumonia": "https://medical-diagnosis-api.onrender.com/predict/image/pneumonia",
+    "Covid-19": "https://medical-diagnosis-api.onrender.com/predict/image/covid",
     "Tuberculosis": "https://your-api.com/xray/tb",
   };
 
