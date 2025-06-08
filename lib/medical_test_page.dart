@@ -93,7 +93,8 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
             "testType": widget.title,
             "values": data,
             "diagnosis": diagnosis,
-          },
+
+          }, title: widget.title,
         ),
       ),
     );

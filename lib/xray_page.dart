@@ -45,7 +45,7 @@ class _XRayPageState extends State<XRayPage> {
               "testType": widget.title,
               "diagnosis": diagnosis,
               "values": {}, // أضفنا هذا السطر لضمان تمرير values
-            },
+            }, title: widget.title,
           ),
         ),
       );

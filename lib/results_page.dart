@@ -1,14 +1,14 @@
 // results_page.dart
 import 'package:analysis_project/tips_page.dart';
 import 'package:flutter/material.dart';
-
 import 'generate_pdf_page.dart';
 import 'medical_advice_page.dart';
 
 class ResultsPage extends StatelessWidget {
   final Map<String, dynamic> data;
+  final String title;
 
-  const ResultsPage({Key? key, required this.data}) : super(key: key);
+  const ResultsPage({Key? key, required this.data, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class ResultsPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (MedicalAdvicePage.getTips(diagnosis).isNotEmpty)
+                if (MedicalAdvicePage.getTips(title).isNotEmpty)
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200], ),
                     icon: const Icon(Icons.tips_and_updates),
@@ -125,7 +125,7 @@ class ResultsPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TipsPage(diagnosis: diagnosis),
+                          builder: (context) => TipsPage(diagnosis: diagnosis, title: title,),
                         ),
                       );
                     },

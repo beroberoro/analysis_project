@@ -4,12 +4,13 @@ import 'medical_advice_page.dart';
 
 class TipsPage extends StatelessWidget {
   final String diagnosis;
+  final String title;
 
-  const TipsPage({Key? key, required this.diagnosis}) : super(key: key);
+  const TipsPage({Key? key, required this.diagnosis, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final List<String> tips = MedicalAdvicePage.getTips(diagnosis);
+    final List<String> tips = MedicalAdvicePage.getTips(title);
 
     return Scaffold(
       appBar: AppBar(

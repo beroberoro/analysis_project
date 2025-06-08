@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class MedicalAdvicePage {
 
-  static List<String> getTips(String diagnosis) {
-    switch (diagnosis.trim().toLowerCase()) {
+  static List<String> getTips(String title) {
+    switch (title.trim().toLowerCase()) {
       case "diabetes":
         return [
           "ماذا يفعل المريض:",
@@ -137,7 +137,7 @@ class MedicalAdvicePage {
 
         ];
 
-      case "parkinsons":
+      case "covid-19":
         return [
           "ماذا يفعل المريض:",
           "الالتزام بموعد الدواء إن كان يأخذ أدوية (مثل الليفودوبا أو الدوبامين)، يأخذها في المواعيد المقررة بدون تأخير.",
