@@ -38,85 +38,55 @@ class ResultsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            Text(
-              "Analysis results:",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.green.shade900,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.separated(
-                itemCount: values.length,
-                separatorBuilder: (_, __) => const Divider(color: Colors.grey),
-                itemBuilder: (context, index) {
-                  String key = values.keys.elementAt(index);
-                  String value = values[key]!;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        key,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.green.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (MedicalAdvicePage.getTips(diagnosis).length > 1)
-                  ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200]),
-                  icon: const Icon(Icons.tips_and_updates),
-                  label: const Text("Medical advice"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TipsPage(diagnosis: diagnosis),
-                      ),
-                    );
-                  },
-
-
+            if (values.isNotEmpty) ...[
+              Text(
+                "Analysis results:",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade900,
                 ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[200]),
-                  icon: const Icon(Icons.picture_as_pdf),
-                  label: const Text("Generat PDF"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GeneratePdfPage(
-                          diagnosis: diagnosis,
-                          values: values,
-                          testType: testType,
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: values.length,
+                  separatorBuilder: (_, __) => const Divider(color: Colors.grey),
+                  itemBuilder: (context, index) {
+                    String key = values.keys.elementAt(index);
+                    String value = values[key]!;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          key,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.green.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
+                        Text(
+                          value,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
-              ],
-            ),
+              ),
+            ] else ...[
+              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  "No analysis values available.",
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             Text(
               "Diagnosis:",
@@ -142,6 +112,44 @@ class ResultsPage extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (MedicalAdvicePage.getTips(diagnosis).isNotEmpty)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200], ),
+                    icon: const Icon(Icons.tips_and_updates),
+                    label: const Text("Medical advice"),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TipsPage(diagnosis: diagnosis),
+                        ),
+                      );
+                    },
+                  ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[200]),
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text("Generate PDF"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GeneratePdfPage(
+                          diagnosis: diagnosis,
+                          values: values,
+                          testType: testType,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+
           ],
         ),
       ),

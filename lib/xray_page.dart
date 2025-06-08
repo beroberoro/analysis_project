@@ -44,6 +44,7 @@ class _XRayPageState extends State<XRayPage> {
             data: {
               "testType": widget.title,
               "diagnosis": diagnosis,
+              "values": {}, // أضفنا هذا السطر لضمان تمرير values
             },
           ),
         ),
@@ -56,57 +57,59 @@ class _XRayPageState extends State<XRayPage> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFCE4EC),
-            Color(0xFFF8BBD0),
-          ],
-        ),
-      ),
-      child: SafeArea(
-          child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-            ElevatedButton.icon(
-              onPressed: _pickImage,
-              icon: const Icon(Icons.image),
-              label: const Text("Choose Image"),
-
-            ),
-    const SizedBox(height: 20),
-    // خلي الصورة تاخد أكبر مساحة ممكن
-            Expanded(
-              child: Center(
-                child: _selectedImage != null
-                    ? Image.file(
-                  File(_selectedImage!.path),
-                  fit: BoxFit.contain,
-                  width: double.infinity,
-                )
-                    : const Text(
-                    "NO IMAGE YET",
-                    style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _sendXray,
-                    icon: const Icon(Icons.send),
-                    label: const Text("Send"),
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFCE4EC)),
-                  ),
-                ],
-              ),
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFCE4EC),
+              Color(0xFFF8BBD0),
+            ],
           ),
-      ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _pickImage,
+                  icon: const Icon(Icons.image),
+                  label: const Text("Choose Image"),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Center(
+                    child: _selectedImage != null
+                        ? Image.file(
+                      File(_selectedImage!.path),
+                      fit: BoxFit.contain,
+                      width: double.infinity,
+                    )
+                        : const Text(
+                      "NO IMAGE YET",
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: _sendXray,
+                  icon: const Icon(Icons.send),
+                  label: const Text("Send"),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFCE4EC)),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

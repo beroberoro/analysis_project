@@ -52,17 +52,18 @@ class Api {
 
     try {
       final formData = FormData.fromMap({
-        'image': await MultipartFile.fromFile(imagePath, filename: 'xray.jpg'),
+        'file': await MultipartFile.fromFile(imagePath, filename: 'xray.jpg',contentType: DioMediaType("image", "jpeg"),),
       });
 
       final response = await dio.post(
         url,
         data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-          },
-        ),
+          options: Options(
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              sendTimeout: Duration(seconds: 10),
+              receiveTimeout: Duration(seconds: 30))
       );
 
       return response.data['diagnosis'] ?? "No diagnosis received";
