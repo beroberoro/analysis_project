@@ -410,43 +410,59 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
                 pw.Text('نوع الفحص: ${_translate(widget.testType)}', style: arabicStyle),
                 pw.SizedBox(height: 20),
                 if (widget.values.isNotEmpty) ...[
-                  pw.Text('النتائج الطبية:', style: boldStyle),
+                  pw.Text('Medical Results:', style: boldStyle),
                   pw.SizedBox(height: 8),
                   pw.Table(
-                    border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
-                    defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    border: pw.TableBorder.all(),
+                    columnWidths: {
+                      0: const pw.FlexColumnWidth(2),
+                      1: const pw.FlexColumnWidth(3),
+                    },
                     children: [
-                      // رأس الجدول مع تبديل الأعمدة
+                      // Header row with background color
                       pw.TableRow(
-                        decoration: const pw.BoxDecoration(color: PdfColors.lightBlue100),
+                        decoration: const pw.BoxDecoration(color: PdfColors.grey300),
                         children: [
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text('Value', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.Container(
+                            alignment: pw.Alignment.center,
+                            padding: const pw.EdgeInsets.all(5),
+                            child: pw.Text('Value', style: boldStyle.copyWith(color: PdfColors.black)),
                           ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text('Item', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.Container(
+                            alignment: pw.Alignment.center,
+                            padding: const pw.EdgeInsets.all(5),
+                            child: pw.Text('Item', style: boldStyle.copyWith(color: PdfColors.black)),
                           ),
                         ],
                       ),
-                      // بيانات الجدول مع تبديل الأعمدة
-                      ...widget.values.entries.map((entry) => pw.TableRow(
-                        children: [
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(entry.value, style: arabicStyle, textAlign: pw.TextAlign.right),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(6),
-                            child: pw.Text(_translate(entry.key), style: arabicStyle, textAlign: pw.TextAlign.right),
-                          ),
-                        ],
-                      )).toList(),
+                      // Data rows
+                      ...widget.values.entries.map(
+                            (entry) => pw.TableRow(
+                          children: [
+                            pw.Container(
+                              padding: const pw.EdgeInsets.all(5),
+                              child: pw.Text(entry.value, style: arabicStyle),
+                            ),
+                            pw.Container(
+                              padding: const pw.EdgeInsets.all(5),
+                              child: pw.Text(_translate(entry.key), style: arabicStyle),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
+                  )
+                  ,
+                ] else if (widget.imagePath != null) ...[ // ✅ هنا
+                  pw.Text('X-ray Image:', style: boldStyle),
+                  pw.SizedBox(height: 8),
+                  pw.Image(
+                    pw.MemoryImage(File(widget.imagePath!).readAsBytesSync()),
+                    height: 250,
+                    width: 250,
+                    fit: pw.BoxFit.contain,
                   ),
                 ],
-
 
                 pw.SizedBox(height: 20),
                 pw.Text('التشخيص النهائي:', style: boldStyle),
@@ -456,21 +472,30 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
                 ),
                 pw.SizedBox(height: 20),
 
-                // التاريخ المرضي
+                  // التاريخ المرضي
                 pw.SizedBox(height: 12),
                 pw.Text(
-                  '2. التاريخ المرضي والظروف الصحية المزمنة (Medical History):',
+                  'التاريخ المرضي والظروف الصحية المزمنة (Medical History):',
                   style: boldStyle,
                 ),
-                ...chronicConditions.entries.map((e) {
-                  if (e.key == 'حالات أخرى' && e.value && chronicOtherController.text.isNotEmpty) {
-                    return pw.Text('• ${e.key}: ${chronicOtherController.text}', style: arabicStyle);
-                  }
-                  if (e.value) {
-                    return pw.Text('• ${e.key}', style: arabicStyle);
-                  }
-                  return pw.Container();
-                }),
+
+                ...(() {
+                  final chronicWidgets = chronicConditions.entries.map((e) {
+                    if (e.key == 'حالات أخرى' && e.value && chronicOtherController.text.isNotEmpty) {
+                      return pw.Text('• ${e.key}: ${chronicOtherController.text}', style: arabicStyle);
+                    }
+                    if (e.value) {
+                      return pw.Text('• ${e.key}', style: arabicStyle);
+                    }
+                    return null; // لازم نتعامل مع null بعد كده
+                  }).whereType<pw.Widget>().toList(); // يتجاهل null ويرجع بس الـ Widgets
+
+                  return chronicWidgets.isNotEmpty
+                      ? chronicWidgets
+                      : [pw.Text('لا يوجد حالات مزمنة.', style: arabicStyle)];
+                })(),
+
+
                 pw.SizedBox(height: 20),
 
                 // أسئلة التشخيص
@@ -508,7 +533,7 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
 
                 // الجزء الحر
                 pw.Text(
-                  '"بماذا تشكو؟”',
+                  '"هل هناك ما تشكو منه ايضا؟”',
                   style: boldStyle,
                 ),
                 pw.Text(
@@ -727,7 +752,7 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
               ],
               const SizedBox(height: 24),
               const Text(
-                '"بماذا تشكو؟"',
+                '"هل هناك ما تشكو منه ايضا؟"',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               TextField(

@@ -73,16 +73,17 @@ class ResultsPage extends StatelessWidget {
                   },
                 ),
               ),
-            ] else if (imagePath != null) ...[
-              const SizedBox(height: 20),
+            ] else if (data["imagePath"] != null|| imagePath != null) ...[
+              const SizedBox(height: 10),
               Center(
                 child: Image.file(
-                  File(imagePath!),
+                  File(data["imagePath"]),
                   width: 250,
                   height: 250,
                   fit: BoxFit.contain,
                 ),
               ),
+
             ] else ...[
               const SizedBox(height: 10),
               Center(
@@ -131,7 +132,7 @@ class ResultsPage extends StatelessWidget {
                           diagnosis: diagnosis,
                           values: values,
                           testType: testType,
-                          imagePath: imagePath,
+                          imagePath: data["imagePath"],
                         ),
                       ),
                     );
