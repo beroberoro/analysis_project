@@ -1,4 +1,5 @@
 // report_store.dart
+
 class ReportStore {
   static final List<Map<String, dynamic>> _reports = [];
 
@@ -7,7 +8,6 @@ class ReportStore {
   }
 
   static List<Map<String, dynamic>> getReports() {
-    return _reports;
+    return List.from(_reports);
   }
 }
-
