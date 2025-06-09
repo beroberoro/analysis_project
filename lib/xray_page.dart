@@ -1,4 +1,3 @@
-// xray_page.dart
 import 'package:dio/dio.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ class _XRayPageState extends State<XRayPage> {
   final Api api = Api(dio: Dio(), apiKey: ""); // حط مفتاحك هنا
   XFile? _selectedImage;
   String _diagnosis = "";
-  bool _isLoading = false; // <-- حالة التحميل
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -55,6 +54,7 @@ class _XRayPageState extends State<XRayPage> {
                 "testType": widget.title,
                 "diagnosis": diagnosis,
                 "values": {},
+                "imagePath": _selectedImage!.path,
               },
               title: widget.title,
             ),

@@ -1,15 +1,22 @@
 // results_page.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:analysis_project/generate_pdf_page.dart';
 import 'package:analysis_project/tips_page.dart';
-import 'generate_pdf_page.dart';
-import 'medical_advice_page.dart';
-import 'report_store.dart'; // تمت الإضافة
+import 'package:analysis_project/medical_advice_page.dart';
+import 'package:analysis_project/report_store.dart';
 
 class ResultsPage extends StatelessWidget {
   final Map<String, dynamic> data;
   final String title;
+  final String? imagePath;
 
-  const ResultsPage({Key? key, required this.data, required this.title}) : super(key: key);
+  const ResultsPage({
+    Key? key,
+    required this.data,
+    required this.title,
+    this.imagePath,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +24,6 @@ class ResultsPage extends StatelessWidget {
     final Map<String, String> values = Map<String, String>.from(data["values"] ?? {});
     final String diagnosis = data["diagnosis"] ?? "No diagnosis available";
 
-    // ✅ إضافة التقرير إلى ReportStore
     ReportStore.addReport({
       "testType": testType,
       "values": values,
@@ -65,6 +71,16 @@ class ResultsPage extends StatelessWidget {
                       ],
                     );
                   },
+                ),
+              ),
+            ] else if (imagePath != null) ...[
+              const SizedBox(height: 20),
+              Center(
+                child: Image.file(
+                  File(imagePath!),
+                  width: 250,
+                  height: 250,
+                  fit: BoxFit.contain,
                 ),
               ),
             ] else ...[
@@ -115,6 +131,7 @@ class ResultsPage extends StatelessWidget {
                           diagnosis: diagnosis,
                           values: values,
                           testType: testType,
+                          imagePath: imagePath,
                         ),
                       ),
                     );

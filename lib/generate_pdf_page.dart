@@ -1,4 +1,6 @@
 // generate_pdf_page.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -6,17 +8,19 @@ import 'package:printing/printing.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 
-
 class GeneratePdfPage extends StatefulWidget {
   final String testType;
   final Map<String, String> values;
   final String diagnosis;
+  final String? imagePath;
+
 
   const GeneratePdfPage({
     super.key,
     required this.testType,
     required this.values,
     required this.diagnosis,
+    this.imagePath,
   });
 
   @override
@@ -405,11 +409,45 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
                 pw.Text('الجنس: $gender', style: arabicStyle),
                 pw.Text('نوع الفحص: ${_translate(widget.testType)}', style: arabicStyle),
                 pw.SizedBox(height: 20),
-                pw.Text('النتائج الطبية:', style: boldStyle),
-                pw.SizedBox(height: 8),
-                ...widget.values.entries.map((entry) =>
-                    pw.Text('${_translate(entry.key)}: ${entry.value}', style: arabicStyle)
-                ),
+                if (widget.values.isNotEmpty) ...[
+                  pw.Text('النتائج الطبية:', style: boldStyle),
+                  pw.SizedBox(height: 8),
+                  pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+                    defaultVerticalAlignment: pw.TableCellVerticalAlignment.middle,
+                    children: [
+                      // رأس الجدول مع تبديل الأعمدة
+                      pw.TableRow(
+                        decoration: const pw.BoxDecoration(color: PdfColors.lightBlue100),
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text('Value', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text('Item', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      // بيانات الجدول مع تبديل الأعمدة
+                      ...widget.values.entries.map((entry) => pw.TableRow(
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(entry.value, style: arabicStyle, textAlign: pw.TextAlign.right),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(6),
+                            child: pw.Text(_translate(entry.key), style: arabicStyle, textAlign: pw.TextAlign.right),
+                          ),
+                        ],
+                      )).toList(),
+                    ],
+                  ),
+                ],
+
+
                 pw.SizedBox(height: 20),
                 pw.Text('التشخيص النهائي:', style: boldStyle),
                 pw.Text(
