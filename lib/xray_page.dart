@@ -18,6 +18,7 @@ class _XRayPageState extends State<XRayPage> {
   final Api api = Api(dio: Dio(), apiKey: ""); // حط مفتاحك هنا
   XFile? _selectedImage;
   String _diagnosis = "";
+  bool _isLoading = false; // <-- حالة التحميل
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -32,22 +33,40 @@ class _XRayPageState extends State<XRayPage> {
 
   Future<void> _sendXray() async {
     if (_selectedImage == null) return;
-    String diagnosis = await api.predictXray(_selectedImage!.path, widget.title);
+
     setState(() {
-      _diagnosis = diagnosis;
+      _isLoading = true;
     });
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ResultsPage(
-            data: {
-              "testType": widget.title,
-              "diagnosis": diagnosis,
-              "values": {}, // أضفنا هذا السطر لضمان تمرير values
-            }, title: widget.title,
+
+    try {
+      String diagnosis = await api.predictXray(_selectedImage!.path, widget.title);
+
+      setState(() {
+        _diagnosis = diagnosis;
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultsPage(
+              data: {
+                "testType": widget.title,
+                "diagnosis": diagnosis,
+                "values": {},
+              },
+              title: widget.title,
+            ),
           ),
-        ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send X-ray: $e')),
       );
     }
   }
@@ -101,10 +120,21 @@ class _XRayPageState extends State<XRayPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  onPressed: _sendXray,
-                  icon: const Icon(Icons.send),
-                  label: const Text("Send"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFCE4EC)),
+                  onPressed: _isLoading ? null : _sendXray,
+                  icon: _isLoading
+                      ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
+                      : const Icon(Icons.send),
+                  label: Text(_isLoading ? "Sending..." : "Send"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFCE4EC),
+                  ),
                 ),
               ],
             ),

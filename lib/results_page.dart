@@ -1,8 +1,9 @@
 // results_page.dart
-import 'package:analysis_project/tips_page.dart';
 import 'package:flutter/material.dart';
+import 'package:analysis_project/tips_page.dart';
 import 'generate_pdf_page.dart';
 import 'medical_advice_page.dart';
+import 'report_store.dart'; // تمت الإضافة
 
 class ResultsPage extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -16,6 +17,14 @@ class ResultsPage extends StatelessWidget {
     final Map<String, String> values = Map<String, String>.from(data["values"] ?? {});
     final String diagnosis = data["diagnosis"] ?? "No diagnosis available";
 
+    // ✅ إضافة التقرير إلى ReportStore
+    ReportStore.addReport({
+      "testType": testType,
+      "values": values,
+      "diagnosis": diagnosis,
+      "date": DateTime.now().toIso8601String(),
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(testType),
@@ -28,10 +37,7 @@ class ResultsPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF1F8E9),
-              Color(0xFFE8F5E9),
-            ],
+            colors: [Color(0xFFF1F8E9), Color(0xFFE8F5E9)],
           ),
         ),
         padding: const EdgeInsets.all(16),
@@ -41,11 +47,7 @@ class ResultsPage extends StatelessWidget {
             if (values.isNotEmpty) ...[
               Text(
                 "Analysis results:",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green.shade900,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green.shade900),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -58,21 +60,8 @@ class ResultsPage extends StatelessWidget {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          key,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          value,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
-                        ),
+                        Text(key, style: TextStyle(fontSize: 16, color: Colors.green.shade700, fontWeight: FontWeight.w600)),
+                        Text(value, style: const TextStyle(fontSize: 16, color: Colors.black87)),
                       ],
                     );
                   },
@@ -81,21 +70,11 @@ class ResultsPage extends StatelessWidget {
             ] else ...[
               const SizedBox(height: 10),
               Center(
-                child: Text(
-                  "No analysis values available.",
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
+                child: Text("No analysis values available.", style: TextStyle(fontSize: 16, color: Colors.grey[600])),
               ),
             ],
             const SizedBox(height: 16),
-            Text(
-              "Diagnosis:",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple.shade700,
-              ),
-            ),
+            Text("Diagnosis:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple.shade700)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -104,13 +83,7 @@ class ResultsPage extends StatelessWidget {
                 color: Colors.deepPurple.shade50,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                diagnosis,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.deepPurple.shade900,
-                ),
-              ),
+              child: Text(diagnosis, style: TextStyle(fontSize: 16, color: Colors.deepPurple.shade900)),
             ),
             const SizedBox(height: 20),
             Row(
@@ -118,14 +91,14 @@ class ResultsPage extends StatelessWidget {
               children: [
                 if (MedicalAdvicePage.getTips(title).isNotEmpty)
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200], ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green[200]),
                     icon: const Icon(Icons.tips_and_updates),
                     label: const Text("Medical advice"),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TipsPage(diagnosis: diagnosis, title: title,),
+                          builder: (context) => TipsPage(diagnosis: diagnosis, title: title),
                         ),
                       );
                     },
@@ -149,7 +122,6 @@ class ResultsPage extends StatelessWidget {
                 ),
               ],
             ),
-
           ],
         ),
       ),
