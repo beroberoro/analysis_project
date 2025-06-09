@@ -1,5 +1,5 @@
-// settings_page.dart
 import 'package:flutter/material.dart';
+import 'login_page.dart'; // تأكد إن الملف موجود
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -45,21 +45,6 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SwitchListTile(
-            title: const Text("Dark Mode"),
-            secondary: const Icon(Icons.color_lens),
-            value: isDarkMode,
-            onChanged: (val) {
-              setState(() {
-                isDarkMode = val;
-              });
-            },
-          ),
-          const ListTile(
-            leading: Icon(Icons.language),
-            title: Text("Language"),
-          ),
-          const Divider(),
           const ListTile(
             leading: Icon(Icons.info),
             title: Text("About App"),
@@ -87,9 +72,30 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
           ),
+          const SizedBox(height: 40),
+          const SizedBox(height: 30),
+          Center(
+            child: SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                        (route) => false,
+                  );
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text("تسجيل الخروج"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[200],
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-

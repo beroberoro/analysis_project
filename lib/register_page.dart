@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_page.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -6,46 +7,140 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F2FD),
-      appBar: AppBar(
-        title: const Text("التسجيل"),
-        backgroundColor: const Color(0xFF0D47A1),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: "اسم المستخدم",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Top image with rotation
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Transform.rotate(
+              angle: -3,
+              child: Image.asset(
+                'assets/image/login_image.jpeg',
+                width: 250,
+                height: 250,
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: "البريد الإلكتروني",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+
+          // Bottom image
+          Positioned(
+            bottom: -100,
+            right: -100,
+            child: Image.asset(
+              'assets/image/login_image.jpeg',
+              width: 250,
+              height: 250,
+            ),
+          ),
+
+          // Main content
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Register",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5D3FD3),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Create a new account",
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Username
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Username",
+                      labelStyle: const TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Email
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      labelStyle: const TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      labelStyle: const TextStyle(color: Colors.black),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Register Button
+                  SizedBox(
+                    width: 150,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF5D3FD3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () {
+                        // Perform actual registration
+                      },
+                      child: const Text(
+                        "REGISTER",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Go back to Login
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Already have an account? Login Now",
+                      style: TextStyle(
+                        color: Color(0xFF5D3FD3),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: "كلمة المرور",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0D47A1)),
-              onPressed: () {
-                // تنفيذ التسجيل الحقيقي
-              },
-              child: const Text("تسجيل", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

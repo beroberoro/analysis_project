@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
                     },
                     child: const CircleAvatar(
                       radius: 25,
-                      backgroundImage: AssetImage('assets/download.png'),
+                      backgroundImage: AssetImage('assets/image/download.png'),
                       backgroundColor: Colors.transparent,
                     ),
                   ),
