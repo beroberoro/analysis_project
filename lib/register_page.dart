@@ -1,146 +1,102 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'package:dio/dio.dart';
 
-class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+class RegistrationPage extends StatefulWidget {
+  @override
+  _RegistrationPageState createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
+  // المتغيرات المطلوبة
+  bool isLoading = false;
+  String message = '';
+
+  // المتحكمات لحقول الإدخال
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  // دالة التسجيل كما هي
+  Future<void> registerUser() async {
+    setState(() {
+      isLoading = true;
+      message = '';
+    });
+
+    try {
+      var dio = Dio();
+      var response = await dio.post(
+        'https://kemetgamesg.com/medical_test/register.php',
+        data: {
+          'name': nameController.text.trim(),
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
+        },
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+        ),
+      );
+
+      setState(() {
+        message = response.data['message'] ?? response.data['error'] ?? 'Something went wrong';
+      });
+    } catch (e) {
+      setState(() {
+        message = 'Failed to register: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // تنظيف المتحكمات عند التخلص من الويدجت
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // Top image with rotation
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Transform.rotate(
-              angle: -3,
-              child: Image.asset(
-                'assets/image/login_image.jpeg',
-                width: 250,
-                height: 250,
+      appBar: AppBar(title: Text('تسجيل مستخدم جديد')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'الاسم'),
+            ),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: 'البريد الإلكتروني'),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(labelText: 'كلمة المرور'),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            if (isLoading)
+              CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: registerUser,
+                child: Text('تسجيل'),
               ),
-            ),
-          ),
-
-          // Bottom image
-          Positioned(
-            bottom: -100,
-            right: -100,
-            child: Image.asset(
-              'assets/image/login_image.jpeg',
-              width: 250,
-              height: 250,
-            ),
-          ),
-
-          // Main content
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Register",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF5D3FD3),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Create a new account",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Username
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Username",
-                      labelStyle: const TextStyle(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Email
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      labelStyle: const TextStyle(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Password
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      labelStyle: const TextStyle(color: Colors.black),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Register Button
-                  SizedBox(
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5D3FD3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: () {
-                        // Perform actual registration
-                      },
-                      child: const Text(
-                        "REGISTER",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Go back to Login
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                      );
-                    },
-                    child: const Text(
-                      "Already have an account? Login Now",
-                      style: TextStyle(
-                        color: Color(0xFF5D3FD3),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+            if (message.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(message),
               ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

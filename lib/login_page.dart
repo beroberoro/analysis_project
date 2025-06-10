@@ -3,8 +3,57 @@ import 'forgot_password_page.dart';
 import 'register_page.dart';
 import 'home_page.dart'; // فيها MyApp
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  // متحكمات لحقول الإدخال
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  // متغيرات للتحقق من الصحة
+  String? _emailError;
+  String? _passwordError;
+
+  // دالة للتحقق من صحة البريد الإلكتروني
+  bool _validateEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  // دالة للتحقق من صحة كلمة المرور (6 أحرف على الأقل)
+  bool _validatePassword(String password) {
+    return password.length >= 6;
+  }
+
+  // دالة للتحقق من جميع الحقول
+  bool _validateFields() {
+    setState(() {
+      _emailError = _emailController.text.isEmpty
+          ? 'Please enter your email'
+          : !_validateEmail(_emailController.text)
+          ? 'Please enter a valid email'
+          : null;
+
+      _passwordError = _passwordController.text.isEmpty
+          ? 'Please enter your password'
+          : !_validatePassword(_passwordController.text)
+          ? 'Password must be at least 6 characters'
+          : null;
+    });
+
+    return _emailError == null && _passwordError == null;
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +69,8 @@ class LoginPage extends StatelessWidget {
               child: Image.asset(
                 'assets/image/login_image.jpeg',
                 width: 250,
-                height: 250,            ),
+                height: 250,
+              ),
             ),
           ),
 
@@ -64,13 +114,17 @@ class LoginPage extends StatelessWidget {
                   Container(
                     width: 300,
                     child: TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         labelText: "Please enter Email",
                         labelStyle: const TextStyle(color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
+                        errorText: _emailError,
+                        errorStyle: const TextStyle(color: Colors.red),
                       ),
+                      keyboardType: TextInputType.emailAddress,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -79,6 +133,7 @@ class LoginPage extends StatelessWidget {
                   Container(
                     width: 300,
                     child: TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: "Please enter Password",
@@ -86,6 +141,8 @@ class LoginPage extends StatelessWidget {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
+                        errorText: _passwordError,
+                        errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
                   ),
@@ -96,11 +153,13 @@ class LoginPage extends StatelessWidget {
                     width: 150,
                     child: ElevatedButton(
                       onPressed: () {
-                        // تسجيل الدخول أو الانتقال
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const MyApp()),
-                        );
+                        if (_validateFields()) {
+                          // إذا كانت الحقول صحيحة، انتقل إلى الصفحة التالية
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MyApp()),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF5D3FD3),
@@ -147,7 +206,7 @@ class LoginPage extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const RegisterPage()));
+                          MaterialPageRoute(builder: (_) => RegistrationPage()));
                     },
                     child: const Text("Don't have an account? Register Now"),
                   ),
