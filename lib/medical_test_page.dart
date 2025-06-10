@@ -125,13 +125,16 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
         builder: (context) => ResultsPage(
           data: {
             "testType": widget.title,
-            "values": data["data"],
+            "values": Map<String, String>.from(
+              data["data"].map((key, value) => MapEntry(key, value.toString())),
+            ),
             "diagnosis": diagnosis,
           },
           title: widget.title,
         ),
       ),
     );
+
   }
 
   @override
