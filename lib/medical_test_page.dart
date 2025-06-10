@@ -15,8 +15,12 @@ class MedicalTestPage extends StatefulWidget {
 
 class _MedicalTestPageState extends State<MedicalTestPage> {
   late List<String> fields;
+  bool requiresGender = false;
+  int genderValue = 0;
   final Map<String, TextEditingController> controllers = {};
-  final Api api = Api(dio: Dio(), apiKey: ""); // ضع مفتاحك هنا
+  final Api api = Api(dio: Dio(), apiKey: "");
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,43 +28,48 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
 
     switch (widget.title) {
       case "Diabetes":
+        requiresGender = false;
         fields = [
-          "gender", "age", "hypertension", "heart disease", "smoking history",
-          "bmi", "HbA1c level", "blood glucose level"
+          "Pregnancies", "Glucose", "BloodPressure", "SkinThickness",
+          "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"
         ];
         break;
       case "Liver Disease":
+        requiresGender = true;
         fields = [
-          "Age", "Gender", "BMI", "Alcohol Consumption", "Smoking",
-          "Genetic Risk", "Physical Activity", "Diabetes", "Hypertension",
-          "Liver Function Test"
+          "Age", "BMI", "AlcoholConsumption", "Smoking", "GeneticRisk",
+          "PhysicalActivity", "Diabetes", "Hypertension", "LiverFunctionTest"
         ];
         break;
       case "Anemia":
-        fields = ["Gender", "Hemoglobin", "MCH", "MCHC", "MCV"];
+        requiresGender = true;
+        fields = ["Hemoglobin", "MCH", "MCHC", "MCV"];
         break;
       case "Viral infection":
+        requiresGender = false;
         fields = [
           "WBCS", "RBCs", "Haemoglobin", "Hematocrit (PCV)", "M.C.V", "M.C.H",
-          "M.C.H.C", "RDW", "Platelets Count", "MPV", "Neutrophils%", "Neutrophils#",
-          "Lymphocytes%", "Lymphocytes#", "Monocyte%", "Monocyte#", "Eosinophils%",
-          "Eosinophils#", "Basophils%", "Basophils#", "Large Unstained Cells%",
-          "Large Unstained Cells#"
+          "M.C.H.C", "RDW", "Platelets Count", "MPV", "Neutrophils%",
+          "Neutrophils#", "Lymphocytes%", "Lymphocytes#", "Monocyte%",
+          "Monocyte#", "Eosinophils%", "Eosinophils#", "Basophils%",
+          "Basophils#", "Large Unstained Cells%", "Large Unstained Cells#"
         ];
         break;
       case "Parkinsons":
+        requiresGender = true;
         fields = [
-          "Age", "Gender", "Ethnicity", "Education Level", "BMI", "Smoking",
-          "Alcohol Consumption", "Physical Activity", "Diet Quality", "Sleep Quality",
-          "Family History Parkinsons", "Traumatic Brain Injury", "Hypertension",
+          "Age", "Ethnicity", "EducationLevel", "BMI", "Smoking",
+          "AlcoholConsumption", "PhysicalActivity", "DietQuality", "SleepQuality",
+          "FamilyHistoryParkinsons", "TraumaticBrainInjury", "Hypertension",
           "Diabetes", "Depression", "Stroke", "SystolicBP", "DiastolicBP",
-          "Cholesterol Total", "Cholesterol LDL", "Cholesterol HDL",
-          "Cholesterol Triglycerides", "UPDRS", "MoCA", "Functional Assessment",
-          "Tremor", "Rigidity", "Bradykinesia", "Postural Instability",
-          "Speech Problems", "Sleep Disorders", "Constipation"
+          "CholesterolTotal", "CholesterolLDL", "CholesterolHDL",
+          "CholesterolTriglycerides", "UPDRS", "MoCA", "FunctionalAssessment",
+          "Tremor", "Rigidity", "Bradykinesia", "PosturalInstability",
+          "SpeechProblems", "SleepDisorders", "Constipation"
         ];
         break;
       default:
+        requiresGender = false;
         fields = ["Value 1", "Value 2"];
     }
 
@@ -77,13 +86,38 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
     super.dispose();
   }
 
-  Future<void> _sendDataToBackend() async {
-    Map<String, String> data = {
-      "testType": widget.title,
-      for (var field in fields) field: controllers[field]!.text,
-    };
+  Map<String, dynamic> _formatDataForModule(String testType) {
+    Map<String, dynamic> values = {};
+    for (var field in fields) {
+      values[field] = double.tryParse(controllers[field]?.text ?? '') ?? 0.0;
+    }
 
-    String diagnosis = await api.sendMedicalReport(data, widget.title);
+    if (requiresGender) {
+      if (testType == "Anemia") {
+        values["Gender"] = genderValue == 0 ? 1 : 0;
+      } else {
+        values["Gender"] = genderValue;
+      }
+    }
+
+    return {"data": values};
+  }
+
+  Future<void> _sendDataToBackend() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Map<String, dynamic> data = _formatDataForModule(widget.title);
+
+    String diagnosis = await api.sendMedicalReport(
+      data.map((key, value) => MapEntry(key, value.toString())),
+      widget.title,
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
 
     Navigator.push(
       context,
@@ -91,10 +125,10 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
         builder: (context) => ResultsPage(
           data: {
             "testType": widget.title,
-            "values": data,
+            "values": data["data"],
             "diagnosis": diagnosis,
-
-          }, title: widget.title,
+          },
+          title: widget.title,
         ),
       ),
     );
@@ -119,6 +153,33 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              if (requiresGender) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ChoiceChip(
+                      label: const Text("Male"),
+                      selected: genderValue == 0,
+                      onSelected: (_) {
+                        setState(() {
+                          genderValue = 0;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 10),
+                    ChoiceChip(
+                      label: const Text("Female"),
+                      selected: genderValue == 1,
+                      onSelected: (_) {
+                        setState(() {
+                          genderValue = 1;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
               Expanded(
                 child: ListView.builder(
                   itemCount: fields.length,
@@ -143,7 +204,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
                               controller: controllers[field],
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+\.?[0-9]*')),
                               ],
                               decoration: InputDecoration(
                                 hintText: "Enter value",
@@ -162,12 +223,22 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
                   },
                 ),
               ),
+              const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _sendDataToBackend,
-                icon: const Icon(Icons.send),
-                label: const Text("Send"),
+                onPressed: _isLoading ? null : _sendDataToBackend,
+                icon: _isLoading
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : const Icon(Icons.send),
+                label: Text(_isLoading ? "Sending..." : "Send"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple.shade400,
+                  backgroundColor: Colors.deepPurple.shade300,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),

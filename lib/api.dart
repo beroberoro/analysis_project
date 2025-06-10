@@ -8,17 +8,17 @@ class Api {
   Api({required this.dio, required this.apiKey});
 
   final Map<String, String> medicalEndpoints = {
-    "Diabetes": "https://your-api.com/diabetes",
-    "Liver Disease": "https://your-api.com/liver",
-    "Anemia": "https://your-api.com/anemia",
-    "Viral infection": "https://your-api.com/viral",
-    "Parkinsons": "https://your-api.com/parkinsons",
+    "Diabetes": "https://medical-diagnosis-api.onrender.com/predict/data/diapetes",
+    "Liver Disease": "https://medical-diagnosis-api.onrender.com/predict/data/liver",
+    "Anemia": "https://medical-diagnosis-api.onrender.com/predict/data/anemia",
+    "Viral infection": "https://medical-diagnosis-api.onrender.com/predict/data/viral",
+    "Parkinsons": "https://medical-diagnosis-api.onrender.com/predict/data/parkinsons",
   };
 
   final Map<String, String> xrayEndpoints = {
     "Pneumonia": "https://medical-diagnosis-api.onrender.com/predict/image/pneumonia",
     "Covid-19": "https://medical-diagnosis-api.onrender.com/predict/image/covid",
-    "Tuberculosis": "https://your-api.com/xray/tb",
+    "Tuberculosis": "https://medical-diagnosis-api.onrender.com/predict/image/tuberculosis",
   };
 
   Future<String> sendMedicalReport(Map<String, String> data, String testType) async {

@@ -78,8 +78,8 @@ class ResultsPage extends StatelessWidget {
               Center(
                 child: Image.file(
                   File(data["imagePath"]),
-                  width: 250,
-                  height: 250,
+                  width: 700,
+                  height: 450,
                   fit: BoxFit.contain,
                 ),
               ),

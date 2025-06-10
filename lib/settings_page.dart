@@ -52,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              "This medical analysis app helps patients and doctors easily share and visualize lab reports and x-rays, offering AI-based predictions and tracking progress over time.",
+              "The application is designed to provide patients with an early disease-detection service, assist physicians, and reduce diagnostic time by generating a concise that supports medical staff.",
               style: TextStyle(fontSize: 14),
             ),
           ),

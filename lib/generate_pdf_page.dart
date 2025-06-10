@@ -458,9 +458,7 @@ class _GeneratePdfPageState extends State<GeneratePdfPage> {
                   pw.SizedBox(height: 8),
                   pw.Image(
                     pw.MemoryImage(File(widget.imagePath!).readAsBytesSync()),
-                    height: 250,
-                    width: 250,
-                    fit: pw.BoxFit.contain,
+                    fit: pw.BoxFit.none,
                   ),
                 ],
 
