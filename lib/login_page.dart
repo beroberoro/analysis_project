@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'app_const.dart';
 import 'forgot_password_page.dart';
 import 'register_page.dart';
 import 'home_page.dart'; // فيها MyApp
@@ -15,38 +17,38 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // متغيرات للتحقق من الصحة
-  String? _emailError;
-  String? _passwordError;
 
-  // دالة للتحقق من صحة البريد الإلكتروني
-  bool _validateEmail(String email) {
-    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  Future<void> loginUser() async {
+    try {
+      final dio = Dio();
+      final response = await dio.post(
+        'https://kemetgamesg.com/medical_test/login.php',
+        data: {
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text.trim(),
+        },
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+        ),
+      );
+
+      final data = response.data;
+      print(data);
+      setState(() {
+        if (data['message'] != null) {
+          kUserId = "${data['user_id']}";
+          kUserEmail = data['user_email'];
+          kUserName = data['user_name'];
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp(),));
+        } else {
+
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
-  // دالة للتحقق من صحة كلمة المرور (6 أحرف على الأقل)
-  bool _validatePassword(String password) {
-    return password.length >= 6;
-  }
-
-  // دالة للتحقق من جميع الحقول
-  bool _validateFields() {
-    setState(() {
-      _emailError = _emailController.text.isEmpty
-          ? 'Please enter your email'
-          : !_validateEmail(_emailController.text)
-          ? 'Please enter a valid email'
-          : null;
-
-      _passwordError = _passwordController.text.isEmpty
-          ? 'Please enter your password'
-          : !_validatePassword(_passwordController.text)
-          ? 'Password must be at least 6 characters'
-          : null;
-    });
-
-    return _emailError == null && _passwordError == null;
-  }
 
   @override
   void dispose() {
@@ -121,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        errorText: _emailError,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -141,7 +142,6 @@ class _LoginPageState extends State<LoginPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
-                        errorText: _passwordError,
                         errorStyle: const TextStyle(color: Colors.red),
                       ),
                     ),
@@ -153,13 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 150,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_validateFields()) {
-                          // إذا كانت الحقول صحيحة، انتقل إلى الصفحة التالية
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => const MyApp()),
-                          );
-                        }
+                        loginUser();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF5D3FD3),
@@ -206,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextButton(
                     onPressed: () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => RegistrationPage()));
+                          MaterialPageRoute(builder: (_) => RegisterPage()));
                     },
                     child: const Text("Don't have an account? Register Now"),
                   ),

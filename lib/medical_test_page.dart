@@ -21,6 +21,10 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
   final Api api = Api(dio: Dio(), apiKey: "");
 
   bool _isLoading = false;
+  int smokingValue = 0;
+  int diabetesValue = 0;
+  int hypertensionValue = 0;
+  int geneticRiskValue = 0;
 
   @override
   void initState() {
@@ -37,7 +41,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
       case "Liver Disease":
         requiresGender = true;
         fields = [
-          "Age", "BMI", "AlcoholConsumption", "Smoking", "GeneticRisk",
+          "Age", "Gender", "BMI", "AlcoholConsumption", "Smoking", "GeneticRisk",
           "PhysicalActivity", "Diabetes", "Hypertension", "LiverFunctionTest"
         ];
         break;
@@ -89,15 +93,16 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
   Map<String, dynamic> _formatDataForModule(String testType) {
     Map<String, dynamic> values = {};
     for (var field in fields) {
-      values[field] = double.tryParse(controllers[field]?.text ?? '') ?? 0.0;
+      if (field == "Smoking") values[field] = smokingValue;
+      else if (field == "GeneticRisk") values[field] = geneticRiskValue;
+      else if (field == "Diabetes") values[field] = diabetesValue;
+      else if (field == "Hypertension") values[field] = hypertensionValue;
+      else if (field == "Gender") values[field] = genderValue;
+      else values[field] = double.tryParse(controllers[field]?.text ?? '') ?? 0.0;
     }
 
-    if (requiresGender) {
-      if (testType == "Anemia") {
-        values["Gender"] = genderValue == 0 ? 1 : 0;
-      } else {
-        values["Gender"] = genderValue;
-      }
+    if (requiresGender && testType == "Anemia") {
+      values["Gender"] = genderValue == 0 ? 1 : 0;
     }
 
     return {"data": values};
@@ -134,7 +139,6 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
         ),
       ),
     );
-
   }
 
   @override
@@ -184,46 +188,53 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
                 const SizedBox(height: 16),
               ],
               Expanded(
-                child: ListView.builder(
-                  itemCount: fields.length,
-                  itemBuilder: (context, index) {
-                    final field = fields[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              field,
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            flex: 3,
-                            child: TextField(
-                              controller: controllers[field],
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+\.?[0-9]*')),
-                              ],
-                              decoration: InputDecoration(
-                                hintText: "Enter value",
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 10),
+                child: ListView(
+                  children: fields.map((field) {
+                    if (field == "Smoking") {
+                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => smokingValue = val));
+                    } else if (field == "GeneticRisk") {
+                      return _buildChoiceRow(field, ["Low", "Medium", "High"], (val) => setState(() => geneticRiskValue = val));
+                    } else if (field == "Diabetes") {
+                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => diabetesValue = val));
+                    } else if (field == "Hypertension") {
+                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => hypertensionValue = val));
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                field,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 3,
+                              child: TextField(
+                                controller: controllers[field],
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+\.?[0-9]*')),
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: field == "PhysicalActivity" ? "Range: 0 to 10 hours per week" : "Enter value",
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -249,6 +260,40 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildChoiceRow(String title, List<String> options, Function(int) onSelect) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: List.generate(options.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(options[index]),
+                  selected: (() {
+                    if (title == "Smoking") return smokingValue == index;
+                    if (title == "GeneticRisk") return geneticRiskValue == index;
+                    if (title == "Diabetes") return diabetesValue == index;
+                    if (title == "Hypertension") return hypertensionValue == index;
+                    return false;
+                  })(),
+                  onSelected: (_) => onSelect(index),
+                ),
+              );
+            }),
+          )
+        ],
       ),
     );
   }
