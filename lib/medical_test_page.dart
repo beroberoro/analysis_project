@@ -19,17 +19,32 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
   int genderValue = 0;
   final Map<String, TextEditingController> controllers = {};
   final Api api = Api(dio: Dio(), apiKey: "");
-
   bool _isLoading = false;
+
+  // Shared binary variables
   int smokingValue = 0;
   int diabetesValue = 0;
   int hypertensionValue = 0;
   int geneticRiskValue = 0;
 
+  // Parkinsons-specific
+  int ethnicityValue = 0;
+  int educationLevelValue = 0;
+  int familyHistoryParkinsonsValue = 0;
+  int traumaticBrainInjuryValue = 0;
+  int depressionValue = 0;
+  int strokeValue = 0;
+  int tremorValue = 0;
+  int rigidityValue = 0;
+  int bradykinesiaValue = 0;
+  int posturalInstabilityValue = 0;
+  int speechProblemsValue = 0;
+  int sleepDisordersValue = 0;
+  int constipationValue = 0;
+
   @override
   void initState() {
     super.initState();
-
     switch (widget.title) {
       case "Diabetes":
         requiresGender = false;
@@ -47,10 +62,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
         break;
       case "Anemia":
         requiresGender = true;
-        fields = [
-          // Ensure Gender is first for Anemia
-          "Gender", "Hemoglobin", "MCH", "MCHC", "MCV"
-        ];
+        fields = ["Gender", "Hemoglobin", "MCH", "MCHC", "MCV"];
         break;
       case "Viral infection":
         requiresGender = false;
@@ -65,8 +77,8 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
       case "Parkinsons":
         requiresGender = true;
         fields = [
-          "Age", "Ethnicity", "EducationLevel", "BMI", "Smoking",
-          "AlcoholConsumption", "PhysicalActivity", "DietQuality", "SleepQuality",
+          "Age", "Gender", "Ethnicity", "EducationLevel", "BMI",
+          "Smoking", "AlcoholConsumption", "PhysicalActivity", "DietQuality", "SleepQuality",
           "FamilyHistoryParkinsons", "TraumaticBrainInjury", "Hypertension",
           "Diabetes", "Depression", "Stroke", "SystolicBP", "DiastolicBP",
           "CholesterolTotal", "CholesterolLDL", "CholesterolHDL",
@@ -87,57 +99,141 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
 
   @override
   void dispose() {
-    for (var controller in controllers.values) {
-      controller.dispose();
-    }
+    controllers.values.forEach((c) => c.dispose());
     super.dispose();
   }
 
   Map<String, dynamic> _formatDataForModule(String testType) {
-    Map<String, dynamic> values = {};
+    final values = <String, dynamic>{};
+
     for (var field in fields) {
-      if (field == "Smoking") values[field] = smokingValue;
-      else if (field == "GeneticRisk") values[field] = geneticRiskValue;
-      else if (field == "Diabetes") values[field] = diabetesValue;
-      else if (field == "Hypertension") values[field] = hypertensionValue;
-      else if (field == "Gender") values[field] = genderValue;
-      else values[field] = double.tryParse(controllers[field]?.text ?? '') ?? 0.0;
+      switch (field) {
+        case 'Age':
+        case 'BMI':
+        case 'AlcoholConsumption':
+        case 'PhysicalActivity':
+        case 'DietQuality':
+        case 'SleepQuality':
+        case 'SystolicBP':
+        case 'DiastolicBP':
+        case 'CholesterolTotal':
+        case 'CholesterolLDL':
+        case 'CholesterolHDL':
+        case 'CholesterolTriglycerides':
+        case 'UPDRS':
+        case 'MoCA':
+        case 'FunctionalAssessment':
+          values[field] = double.tryParse(controllers[field]!.text) ?? 0.0;
+          break;
+
+        case 'Gender':
+          values[field] = genderValue;
+          break;
+
+        case 'Ethnicity':
+          values[field] = ethnicityValue;
+          break;
+
+        case 'EducationLevel':
+          values[field] = educationLevelValue;
+          break;
+
+        case 'Smoking':
+          values[field] = smokingValue;
+          break;
+
+        case 'GeneticRisk':
+          values[field] = geneticRiskValue;
+          break;
+
+        case 'FamilyHistoryParkinsons':
+          values[field] = familyHistoryParkinsonsValue;
+          break;
+
+        case 'TraumaticBrainInjury':
+          values[field] = traumaticBrainInjuryValue;
+          break;
+
+        case 'Hypertension':
+          values[field] = hypertensionValue;
+          break;
+
+        case 'Diabetes':
+          values[field] = diabetesValue;
+          break;
+
+        case 'Depression':
+          values[field] = depressionValue;
+          break;
+
+        case 'Stroke':
+          values[field] = strokeValue;
+          break;
+
+        case 'Tremor':
+          values[field] = tremorValue;
+          break;
+
+        case 'Rigidity':
+          values[field] = rigidityValue;
+          break;
+
+        case 'Bradykinesia':
+          values[field] = bradykinesiaValue;
+          break;
+
+        case 'PosturalInstability':
+          values[field] = posturalInstabilityValue;
+          break;
+
+        case 'SpeechProblems':
+          values[field] = speechProblemsValue;
+          break;
+
+        case 'SleepDisorders':
+          values[field] = sleepDisordersValue;
+          break;
+
+        case 'Constipation':
+          values[field] = constipationValue;
+          break;
+
+        default:
+        // All other fields (including Viral infection fields) use double parsing
+          values[field] = double.tryParse(controllers[field]!.text) ?? 0.0;
+          break;
+      }
     }
 
+    // Special handling for Anemia gender encoding
     if (requiresGender && testType == "Anemia") {
-      // Flip encoding if needed
       values["Gender"] = genderValue == 0 ? 1 : 0;
     }
 
-    return {"data": values};
+    return {'data': values};
   }
 
   Future<void> _sendDataToBackend() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
+    final data = _formatDataForModule(widget.title);
 
-    Map<String, dynamic> data = _formatDataForModule(widget.title);
-
-    String diagnosis = await api.sendMedicalReport(
-      data.map((key, value) => MapEntry(key, value.toString())),
+    final diagnosis = await api.sendMedicalReport(
+      data.map((k, v) => MapEntry(k, v.toString())),
       widget.title,
     );
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ResultsPage(
+        builder: (_) => ResultsPage(
           data: {
-            "testType": widget.title,
-            "values": Map<String, String>.from(
-              data["data"].map((key, value) => MapEntry(key, value.toString())),
+            'testType': widget.title,
+            'values': Map<String, String>.from(
+              data['data'].map((k, v) => MapEntry(k, v.toString())),
             ),
-            "diagnosis": diagnosis,
+            'diagnosis': diagnosis,
           },
           title: widget.title,
         ),
@@ -154,94 +250,146 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF1F8E9),
-              Color(0xFFE8F5E9),
-            ],
+            colors: [Color(0xFFF1F8E9), Color(0xFFE8F5E9)],
           ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              if (requiresGender) ...[
+              if (requiresGender)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ChoiceChip(
-                      label: const Text("Male"),
+                      label: const Text('Male'),
                       selected: genderValue == 0,
-                      onSelected: (_) {
-                        setState(() {
-                          genderValue = 0;
-                        });
-                      },
+                      onSelected: (_) => setState(() => genderValue = 0),
                     ),
                     const SizedBox(width: 10),
                     ChoiceChip(
-                      label: const Text("Female"),
+                      label: const Text('Female'),
                       selected: genderValue == 1,
-                      onSelected: (_) {
-                        setState(() {
-                          genderValue = 1;
-                        });
-                      },
+                      onSelected: (_) => setState(() => genderValue = 1),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-              ],
+              const SizedBox(height: 16),
               Expanded(
                 child: ListView(
                   children: fields.map((field) {
-                    // Skip text field for Gender in Liver Disease & Anemia
-                    if (field == "Gender" && (widget.title == "Liver Disease" || widget.title == "Anemia")) {
+                    // Skip Gender field for Liver Disease & Anemia UI
+                    if (field == 'Gender' &&
+                        (widget.title == 'Liver Disease' ||
+                            widget.title == 'Anemia')) {
                       return const SizedBox.shrink();
                     }
-                    if (field == "Smoking") {
-                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => smokingValue = val));
-                    } else if (field == "GeneticRisk") {
-                      return _buildChoiceRow(field, ["Low", "Medium", "High"], (val) => setState(() => geneticRiskValue = val));
-                    } else if (field == "Diabetes") {
-                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => diabetesValue = val));
-                    } else if (field == "Hypertension") {
-                      return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => hypertensionValue = val));
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
+
+                    // Binary fields list
+                    const binaryFields = [
+                      'Smoking','FamilyHistoryParkinsons','TraumaticBrainInjury',
+                      'Hypertension','Diabetes','Depression','Stroke','Tremor',
+                      'Rigidity','Bradykinesia','PosturalInstability','SpeechProblems',
+                      'SleepDisorders','Constipation'
+                    ];
+
+                    if (binaryFields.contains(field)) {
+                      return _buildChoiceRow(
+                        field,
+                        ['No','Yes'],
+                            (val) {
+                          setState(() {
+                            switch (field) {
+                              case 'Smoking': smokingValue = val; break;
+                              case 'Hypertension': hypertensionValue = val; break;
+                              case 'Diabetes': diabetesValue = val; break;
+                              case 'FamilyHistoryParkinsons': familyHistoryParkinsonsValue = val; break;
+                              case 'TraumaticBrainInjury': traumaticBrainInjuryValue = val; break;
+                              case 'Depression': depressionValue = val; break;
+                              case 'Stroke': strokeValue = val; break;
+                              case 'Tremor': tremorValue = val; break;
+                              case 'Rigidity': rigidityValue = val; break;
+                              case 'Bradykinesia': bradykinesiaValue = val; break;
+                              case 'PosturalInstability': posturalInstabilityValue = val; break;
+                              case 'SpeechProblems': speechProblemsValue = val; break;
+                              case 'SleepDisorders': sleepDisordersValue = val; break;
+                              case 'Constipation': constipationValue = val; break;
+                            }
+                          });
+                        },
+                      );
+                    }
+
+                    if (field == 'Ethnicity') {
+                      return _buildChoiceRow(
+                          field,
+                          ['Caucasian','African American','Asian','Other'],
+                              (val) => setState(() => ethnicityValue = val)
+                      );
+                    }
+
+                    if (field == 'EducationLevel') {
+                      return _buildChoiceRow(
+                          field,
+                          ['None','High School',"Bachelor's",'Higher'],
+                              (val) => setState(() => educationLevelValue = val)
+                      );
+                    }
+
+                    // Range fields
+                    String hint = 'Enter value';
+                    switch (field) {
+                      case 'Age': hint = 'Range: 50 to 90 years'; break;
+                      case 'BMI': hint = 'Range: 15 to 40'; break;
+                      case 'AlcoholConsumption': hint = 'Range: 0 to 20 units/week'; break;
+                      case 'PhysicalActivity': hint = 'Range: 0 to 10 hours/week'; break;
+                      case 'DietQuality': hint = 'Range: 0 to 10'; break;
+                      case 'SleepQuality': hint = 'Range: 4 to 10'; break;
+                      case 'SystolicBP': hint = 'Range: 90 to 180 mmHg'; break;
+                      case 'DiastolicBP': hint = 'Range: 60 to 120 mmHg'; break;
+                      case 'CholesterolTotal': hint = 'Range: 150 to 300 mg/dL'; break;
+                      case 'CholesterolLDL': hint = 'Range: 50 to 200 mg/dL'; break;
+                      case 'CholesterolHDL': hint = 'Range: 20 to 100 mg/dL'; break;
+                      case 'CholesterolTriglycerides': hint = 'Range: 50 to 400 mg/dL'; break;
+                      case 'UPDRS': hint = 'Range: 0 to 199'; break;
+                      case 'MoCA': hint = 'Range: 0 to 30'; break;
+                      case 'FunctionalAssessment': hint = 'Range: 0 to 10'; break;
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
                               flex: 2,
                               child: Text(
-                                field,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              flex: 3,
-                              child: TextField(
-                                controller: controllers[field],
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+\.?[0-9]*')),
-                                ],
-                                decoration: InputDecoration(
-                                  hintText: field == "PhysicalActivity" ? "Range: 0 to 10 hours per week" : "Enter value",
+                                  field,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)
+                              )
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              controller: controllers[field],
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+\.?[0-9]*'))
+                              ],
+                              decoration: InputDecoration(
+                                  hintText: hint,
                                   filled: true,
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(10)
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    }
+                          ),
+                        ],
+                      ),
+                    );
                   }).toList(),
                 ),
               ),
@@ -250,19 +398,16 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
                 onPressed: _isLoading ? null : _sendDataToBackend,
                 icon: _isLoading
                     ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
                 )
                     : const Icon(Icons.send),
-                label: Text(_isLoading ? "Sending..." : "Send"),
+                label: Text(_isLoading ? 'Sending...' : 'Send'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple.shade300,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    backgroundColor: Colors.deepPurple.shade300,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
                 ),
               ),
             ],
@@ -278,25 +423,34 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           Row(
-            children: List.generate(options.length, (index) {
+            children: List.generate(options.length, (i) {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  label: Text(options[index]),
-                  selected: (() {
-                    if (title == "Smoking") return smokingValue == index;
-                    if (title == "GeneticRisk") return geneticRiskValue == index;
-                    if (title == "Diabetes") return diabetesValue == index;
-                    if (title == "Hypertension") return hypertensionValue == index;
+                  label: Text(options[i]),
+                  selected: () {
+                    if (title == 'Smoking') return smokingValue == i;
+                    if (title == 'Hypertension') return hypertensionValue == i;
+                    if (title == 'Diabetes') return diabetesValue == i;
+                    if (title == 'FamilyHistoryParkinsons') return familyHistoryParkinsonsValue == i;
+                    if (title == 'TraumaticBrainInjury') return traumaticBrainInjuryValue == i;
+                    if (title == 'Depression') return depressionValue == i;
+                    if (title == 'Stroke') return strokeValue == i;
+                    if (title == 'Tremor') return tremorValue == i;
+                    if (title == 'Rigidity') return rigidityValue == i;
+                    if (title == 'Bradykinesia') return bradykinesiaValue == i;
+                    if (title == 'PosturalInstability') return posturalInstabilityValue == i;
+                    if (title == 'SpeechProblems') return speechProblemsValue == i;
+                    if (title == 'SleepDisorders') return sleepDisordersValue == i;
+                    if (title == 'Constipation') return constipationValue == i;
+                    if (title == 'Ethnicity') return ethnicityValue == i;
+                    if (title == 'EducationLevel') return educationLevelValue == i;
                     return false;
-                  })(),
-                  onSelected: (_) => onSelect(index),
+                  }(),
+                  onSelected: (_) => onSelect(i),
                 ),
               );
             }),
