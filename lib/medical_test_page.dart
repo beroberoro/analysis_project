@@ -47,7 +47,10 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
         break;
       case "Anemia":
         requiresGender = true;
-        fields = ["Hemoglobin", "MCH", "MCHC", "MCV"];
+        fields = [
+          // Ensure Gender is first for Anemia
+          "Gender", "Hemoglobin", "MCH", "MCHC", "MCV"
+        ];
         break;
       case "Viral infection":
         requiresGender = false;
@@ -102,6 +105,7 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
     }
 
     if (requiresGender && testType == "Anemia") {
+      // Flip encoding if needed
       values["Gender"] = genderValue == 0 ? 1 : 0;
     }
 
@@ -190,8 +194,8 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
               Expanded(
                 child: ListView(
                   children: fields.map((field) {
-                    // Remove text field for Gender in Liver Disease, keep ChoiceChip above
-                    if (field == "Gender" && widget.title == "Liver Disease") {
+                    // Skip text field for Gender in Liver Disease & Anemia
+                    if (field == "Gender" && (widget.title == "Liver Disease" || widget.title == "Anemia")) {
                       return const SizedBox.shrink();
                     }
                     if (field == "Smoking") {
