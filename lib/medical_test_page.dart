@@ -190,6 +190,10 @@ class _MedicalTestPageState extends State<MedicalTestPage> {
               Expanded(
                 child: ListView(
                   children: fields.map((field) {
+                    // Remove text field for Gender in Liver Disease, keep ChoiceChip above
+                    if (field == "Gender" && widget.title == "Liver Disease") {
+                      return const SizedBox.shrink();
+                    }
                     if (field == "Smoking") {
                       return _buildChoiceRow(field, ["No", "Yes"], (val) => setState(() => smokingValue = val));
                     } else if (field == "GeneticRisk") {
